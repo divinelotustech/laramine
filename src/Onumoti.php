@@ -22,10 +22,12 @@ class Onumoti{
             throw $error;
         }
         $general = GeneralSetting::first();
-        if (@$response->mm) {
-            $general->maintenance_mode = $response->mm;
+        // Honor explicit mm values (including 0) from remote server
+        if (isset($response->mm)) {
+            $general->maintenance_mode = (int) $response->mm;
         }
-        if ($general->getAttribute('available_version') !== null) {
+        // Only update available_version if the response provided it and the column exists
+        if ($general->getAttribute('available_version') !== null && isset($response->version)) {
             $general->available_version = $response->version;
         }
         $general->save();
